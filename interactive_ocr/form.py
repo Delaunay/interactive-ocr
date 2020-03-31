@@ -1,11 +1,22 @@
 import os
 
+from PyQt5.QtCore import QSettings
 from PyQt5.QtWidgets import QDialog, QGridLayout, QLabel, QPushButton, QLineEdit, QFileDialog
 
 cwd = os.getcwd()
 
 DEFAULT_FOLDER = os.path.join(cwd, r'images')
 DEFAULT_EXCEL = os.path.join(cwd, r'extracted.xlsx')
+
+settings = QSettings("interactive-ocr", "interactive-ocr")
+
+
+def getDefaultFolder():
+    return settings.value('input', DEFAULT_FOLDER)
+
+
+def getDefaultFile():
+    return settings.value('output', DEFAULT_EXCEL)
 
 
 def getFolder(parent, default):
@@ -32,8 +43,8 @@ class ConfigDialog(QDialog):
         super(ConfigDialog, self).__init__(parent=parent)
         self.layout = QGridLayout()
 
-        self.input_path = QLineEdit(DEFAULT_FOLDER)
-        self.output_path = QLineEdit(DEFAULT_EXCEL)
+        self.input_path = QLineEdit(getDefaultFolder())
+        self.output_path = QLineEdit(getDefaultFile())
 
         self._input()
         self._output()
@@ -77,6 +88,10 @@ class ConfigDialog(QDialog):
 def getInputOutput(parent=None):
     window = ConfigDialog(parent)
     window.exec()
+
+    settings.setValue('input', window.input)
+    settings.setValue('output', window.output)
+
     return window.input, window.output
 
 

@@ -108,8 +108,8 @@ def main():
 
     data = clean_data(read_all_pages_seq(glob.glob(f'{input}/*')[:]))
     data = pd.DataFrame(data)
-
     data.to_excel(output)
+
     sys.exit(app.exec_())
 
 if __name__ == '__main__':

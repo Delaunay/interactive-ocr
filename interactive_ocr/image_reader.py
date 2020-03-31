@@ -127,7 +127,9 @@ class Window(QMainWindow):
             row = []
             for c in range(self.cols):
                 item = self.table.item(r, c)
-                row.append(item.text())
+                if item is not None:
+                    row.append(item.text())
+
             data.append(row)
 
         return data
