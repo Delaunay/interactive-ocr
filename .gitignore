@@ -83,3 +83,6 @@ images/
 docs/build
 interactive_ocr/tmp/
 interactive_ocr/images/
+*.pdf
+*.png
+*.xlsx

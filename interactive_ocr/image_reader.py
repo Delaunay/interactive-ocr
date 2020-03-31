@@ -4,26 +4,18 @@ import os
 import PyQt5.Qt as Qt
 import PyQt5.QtGui as QtGui
 import PIL.ImageQt as ImageQt
-import pytesseract
-import numpy
 import traceback
-import cv2
 import pandas
 
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtGui import QImageReader
 from PyQt5.QtWidgets import QApplication, QMainWindow, QScrollArea, QLabel, QDockWidget, QStatusBar
-from PyQt5.QtWidgets import QFileSystemModel, QTreeView, QErrorMessage, QFileDialog, QTableWidget, QTableWidgetItem
+from PyQt5.QtWidgets import QFileSystemModel, QTreeView, QErrorMessage, QTableWidget, QTableWidgetItem
 from PyQt5.QtWidgets import QToolBar, QPushButton
 from PyQt5.Qt import QPixmap, QRect, QPainter, QColor, QBrush, QPen
 
-from PIL import Image
-
-_base = os.path.dirname(os.path.realpath(__file__))
-pytesseract.pytesseract.tesseract_cmd = f'{_base}/tesseract-Win64/tesseract.exe'
-
-DEFAULT_FOLDER = r'images'
-DEFAULT_EXCEL = 'extracted.xlsx'
+from interactive_ocr.ocr import read_image
+from interactive_ocr.form import getInputOutput
 
 
 class ImageSelector(QLabel):
@@ -63,23 +55,10 @@ class ImageSelector(QLabel):
             self.newSelection.emit()
 
     def selectedImage(self):
-        pix = self.pixmap().copy(self.selection)
-        return ImageQt.fromqpixmap(pix)
-
-
-def getFolder(parent):
-    return QFileDialog.getExistingDirectory(
-        parent,
-        'Dossier d\'image',
-        DEFAULT_FOLDER,
-        QFileDialog.ShowDirsOnly)
-
-
-def getFile(parent):
-    return QFileDialog.getSaveFileName(
-        parent,
-        'Fichier Excel',
-        DEFAULT_EXCEL)
+        if self.pixmap() is not None:
+            pix = self.pixmap().copy(self.selection)
+            return ImageQt.fromqpixmap(pix)
+        return None
 
 
 class Window(QMainWindow):
@@ -102,14 +81,14 @@ class Window(QMainWindow):
         # <<<
 
         # >>> File system View
-        folder = getFolder(self)
-        self.log(f'Opening {folder}')
+        self.input, self.output = getInputOutput(self)
+        self.log(f'Opening {self.input}')
         self.files = QFileSystemModel()
-        self.files.setRootPath(folder)
+        self.files.setRootPath(self.input)
 
         self.file_view = QTreeView()
         self.file_view.setModel(self.files)
-        self.file_view.setRootIndex(self.files.index(folder))
+        self.file_view.setRootIndex(self.files.index(self.input))
 
         self.dock_files = QDockWidget()
         self.dock_files.setWidget(self.file_view)
@@ -154,12 +133,11 @@ class Window(QMainWindow):
         return data
 
     def saveToExcel(self):
-        self.log('Save to Excel')
+        self.log(f'Save to Excel {self.output}')
         self.setDisabled(True)
         try:
-            file = getFile(self)[0]
             data = pandas.DataFrame(self.extractTable())
-            data.to_excel(file, index=False)
+            data.to_excel(self.output, index=False)
 
         except:
             error = traceback.format_exc()
@@ -183,34 +161,25 @@ class Window(QMainWindow):
             msg = QErrorMessage(self)
             msg.showMessage(f'{path} is not a supported image format try a PNG image')
 
-        self.status.clearMessage()
-
     def processSelection(self):
         """Read the selected region and try to decode the text from it"""
         try:
             self.setDisabled(True)
-            img = self.label.selectedImage()
             self.log(f'Processing selection {self.label.selection}')
 
-            # Post Processing
-            cv_img = cv2.cvtColor(numpy.array(img), cv2.COLOR_RGB2BGR)
-            gray = cv2.cvtColor(cv_img, cv2.COLOR_BGR2GRAY)
-            gray = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+            img = self.label.selectedImage()
 
-            # debug save
-            cv2.imwrite('tmp/tmp.png', gray)
-
-            # OCR
-            img = Image.fromarray(gray)
-            text = pytesseract.image_to_string(img)
-            self.addRow(text)
+            if img is not None:
+                text = read_image(img)
+                self.addRow(text)
+            else:
+                self.log('No image to read from')
 
         except:
             error = traceback.format_exc()
             msg = QErrorMessage(self)
             msg.showMessage(error)
 
-        self.status.clearMessage()
         self.setDisabled(False)
 
     def addRow(self, data):
