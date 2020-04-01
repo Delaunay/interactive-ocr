@@ -86,3 +86,4 @@ interactive_ocr/images/
 *.pdf
 *.png
 *.xlsx
+html/

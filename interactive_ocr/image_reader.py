@@ -27,7 +27,6 @@ class ImageSelector(QLabel):
         self.selecting = False
         self.selection = QRect()
         self.selected = False
-        self.setMinimumSize(1240, 680)
 
     def paintEvent(self, event: QtGui.QPaintEvent):
         super().paintEvent(event)
@@ -55,6 +54,12 @@ class ImageSelector(QLabel):
             self.newSelection.emit()
 
     def selectedImage(self):
+        if self.selection.height() < 0 or self.selection.width() < 0:
+            return None
+
+        if self.selection.x() < 0 or self.selection.y() < 0:
+            return None
+
         if self.pixmap() is not None:
             pix = self.pixmap().copy(self.selection)
             return ImageQt.fromqpixmap(pix)
@@ -78,6 +83,7 @@ class Window(QMainWindow):
         # >>> Image display
         self.area = QScrollArea()
         self.area.setWidget(self.label)
+        self.area.setMinimumSize(1240, 680)
         # <<<
 
         # >>> File system View
@@ -186,6 +192,10 @@ class Window(QMainWindow):
 
     def addRow(self, data):
         cols = list(filter(lambda x: x, data.split('\n')))
+
+        if len(cols) == 0:
+            return
+
         self.cols = max(self.cols, len(cols))
 
         # resize if necessary

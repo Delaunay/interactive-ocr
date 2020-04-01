@@ -11,9 +11,8 @@ install:
 build: off
 
 test_script:
-  - "%PYTHON%\\python.exe -m PyInstaller.__main__  --onefile bin\\interactive_ocr.py"
-  - "%PYTHON%\\python.exe -m PyInstaller.__main__  --onefile bin\\convert_ocr.py"
+  - "%PYTHON%\\python.exe -m PyInstaller.__main__ --onefile bin\\interactive_ocr.py"
+  - "%PYTHON%\\python.exe -m PyInstaller.__main__ --onefile bin\\convert_ocr.py"
 
 artifacts:
-  - path: build
   - path: dist
