@@ -1,11 +1,15 @@
-from PIL import Image
-import pytesseract
-import cv2
-import numpy
 import os
 
+from PIL import Image
+import pytesseract
+
+import cv2
+os.environ.pop("QT_QPA_PLATFORM_PLUGIN_PATH")
+
+import numpy
+
 _base = os.path.dirname(os.path.realpath(__file__))
-pytesseract.pytesseract.tesseract_cmd = f'{_base}/tesseract-Win64/tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = f'/usr/bin/tesseract'
 
 
 def image_to_string(img):

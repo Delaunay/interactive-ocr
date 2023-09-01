@@ -16,7 +16,16 @@ if __name__ == '__main__':
         author='Pierre Delaunay',
         packages=['interactive_ocr'],
         setup_requires=['setuptools'],
-        install_requires=['shortcutter'],
+        install_requires=[
+            'shortcutter',
+            "numpy",			
+            "PyQt5",			
+            "pandas",			
+            "pytesseract",	
+            "pillow",
+            "opencv-python",
+
+        ],
         entry_points={
             'console_scripts': [
                 'interactive-ocr = interactive_ocr.image_reader:main',

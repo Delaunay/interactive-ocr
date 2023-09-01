@@ -4,7 +4,9 @@ interactive-ocr
 Simple Program that performs OCR on a selected region of an Image
 
     pip install git+git://github.com/Delaunay/interactive-ocr.git
-
+    pip install -e .
+    interactive-ocr
+  
 
 1. Run `interactive-ocr`
 2. Open image folder

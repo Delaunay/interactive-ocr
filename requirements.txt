@@ -1,6 +1,6 @@
-numpy
-PyQt5
-pandas
-pytesseract
+numpy			
+PyQt5			
+pandas			
+pytesseract	
 pillow
 opencv-python
