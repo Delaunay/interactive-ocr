@@ -3,8 +3,8 @@ interactive-ocr
 
 Simple Program that performs OCR on a selected region of an Image
 
+    sudo apt install tesseract-ocr
     pip install git+git://github.com/Delaunay/interactive-ocr.git
-    pip install -e .
     interactive-ocr
   
 
